@@ -399,6 +399,22 @@ class LoanReturnView(StaffRequiredMixin, View):
         return redirect('library:loans')
 
 
+def csv_safe_cell(value):
+    """Prefix risky text for spreadsheet import; csv.writer handles CSV syntax."""
+    if isinstance(value, str) and value:
+        if any(ord(char) < 32 or ord(char) == 127 for char in value) or value.lstrip().startswith(('=', '+', '-', '@')):
+            return "'" + value
+    return value
+
+
+class SafeCSVWriter:
+    def __init__(self, response):
+        self.writer = csv.writer(response)
+
+    def writerow(self, values):
+        self.writer.writerow([csv_safe_cell(value) for value in values])
+
+
 class ReportCSVView(StaffRequiredMixin, View):
     report_titles = {
         'current': _('Текущие выдачи'),
@@ -412,10 +428,11 @@ class ReportCSVView(StaffRequiredMixin, View):
             return redirect('library:reports')
 
         response = HttpResponse(content_type='text/csv; charset=utf-8-sig')
+        response.charset = 'utf-8'  # Write the BOM once, not once per CSV row.
         filename = f'smartkitap_{report_type}.csv'
         response['Content-Disposition'] = f'attachment; filename="{filename}"'
         response.write('\ufeff')
-        writer = csv.writer(response)
+        writer = SafeCSVWriter(response)
         today = timezone.localdate()
 
         if report_type == 'current':

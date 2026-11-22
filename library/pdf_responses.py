@@ -9,7 +9,11 @@ def ranged_file_response(file, filename, content_type, range_header=None):
     file.seek(0, 2)
     size = file.tell()
     file.seek(0)
-    match = re.fullmatch(r'bytes=(\d*)-(\d*)', range_header or '')
+    # Ignore malformed, excessive, unsupported and multi-range headers.
+    header = range_header or ''
+    match = re.fullmatch(r'bytes=([0-9]{0,20})-([0-9]{0,20})', header) if len(header) <= 48 else None
+    if match and not any(match.groups()):
+        match = None
     if not match:
         response = FileResponse(file, content_type=content_type, filename=filename)
         response.block_size = 64 * 1024

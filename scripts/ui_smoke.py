@@ -21,6 +21,7 @@ from django.conf import settings
 temporary = tempfile.TemporaryDirectory(prefix='smartkitap-ui-')
 settings.DATABASES['default']['NAME'] = Path(temporary.name) / 'ui.sqlite3'
 settings.PRIVATE_MEDIA_ROOT = Path(temporary.name) / 'private'
+settings.MEDIA_ROOT = Path(temporary.name) / 'public'
 settings.ALLOWED_HOSTS = ['127.0.0.1']
 settings.PASSWORD_HASHERS = ['django.contrib.auth.hashers.MD5PasswordHasher']
 
@@ -66,6 +67,12 @@ def run():
         ('Ай мен Айша', 'Шерхан Мұртаза', 'Роман', 'ai_men_aisha.png'),
         ('Мұқабасыз кітап', 'Жаңа автор', 'Әңгіме', ''),
     ]
+    from PIL import Image
+    covers = settings.MEDIA_ROOT / 'book_covers'
+    covers.mkdir(parents=True, exist_ok=True)
+    for _, _, _, cover in data:
+        if cover:
+            Image.new('RGB', (160, 240), (65, 100, 125)).save(covers / cover)
     books = []
     for title, author, genre, cover in data:
         book = Book.objects.create(title=title, author=author, genre=genre, publication_year=2026,
