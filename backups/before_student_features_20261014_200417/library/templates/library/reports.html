@@ -1,0 +1,98 @@
+{% extends 'library/base.html' %}
+{% load i18n %}
+
+{% block title %}{% trans 'Отчёты' %} - SmartKitap{% endblock %}
+
+{% block content %}
+<section class="page-heading">
+    <p class="section-kicker">{% trans 'Кабинет библиотекаря' %}</p>
+    <h2>{% trans 'Отчёты' %}</h2>
+    <p>{% trans 'Отчёты формируются на основе реальной истории выдачи и возврата книг.' %}</p>
+</section>
+
+<section class="report-stack">
+    <article class="table-panel">
+        <div class="heading-row compact">
+            <h3>{% trans 'Текущие выдачи' %}</h3>
+            <a class="btn btn-sm btn-outline-primary" href="{% url 'library:report_csv' 'current' %}">{% trans 'Экспорт CSV' %}</a>
+        </div>
+        {% if current_loans %}
+            <div class="table-responsive">
+                <table class="table align-middle catalog-table">
+                    <thead><tr><th>{% trans 'Книга' %}</th><th>{% trans 'Автор' %}</th><th>{% trans 'Читатель' %}</th><th>{% trans 'Класс' %}</th><th>{% trans 'Дата выдачи' %}</th><th>{% trans 'Срок возврата' %}</th></tr></thead>
+                    <tbody>
+                        {% for loan in current_loans %}
+                            <tr><td>{{ loan.book.title }}</td><td>{{ loan.book.author }}</td><td>{{ loan.reader.full_name }}</td><td>{{ loan.reader.class_name }}</td><td>{{ loan.issue_date|date:'d.m.Y' }}</td><td>{{ loan.due_date|date:'d.m.Y' }}</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <p class="muted-text">{% trans 'Текущих выдач нет.' %}</p>
+        {% endif %}
+    </article>
+
+    <article class="table-panel">
+        <div class="heading-row compact">
+            <h3>{% trans 'Просроченные книги' %}</h3>
+            <a class="btn btn-sm btn-outline-primary" href="{% url 'library:report_csv' 'overdue' %}">{% trans 'Экспорт CSV' %}</a>
+        </div>
+        {% if overdue_loans %}
+            <div class="table-responsive">
+                <table class="table align-middle catalog-table">
+                    <thead><tr><th>{% trans 'Книга' %}</th><th>{% trans 'Автор' %}</th><th>{% trans 'Читатель' %}</th><th>{% trans 'Класс' %}</th><th>{% trans 'Срок возврата' %}</th><th>{% trans 'Дней просрочки' %}</th></tr></thead>
+                    <tbody>
+                        {% for loan in overdue_loans %}
+                            <tr><td>{{ loan.book.title }}</td><td>{{ loan.book.author }}</td><td>{{ loan.reader.full_name }}</td><td>{{ loan.reader.class_name }}</td><td>{{ loan.due_date|date:'d.m.Y' }}</td><td>{{ loan.overdue_days }}</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <p class="muted-text">{% trans 'Просроченных книг нет.' %}</p>
+        {% endif %}
+    </article>
+
+    <article class="table-panel">
+        <div class="heading-row compact">
+            <h3>{% trans 'История операций' %}</h3>
+            <a class="btn btn-sm btn-outline-primary" href="{% url 'library:report_csv' 'history' %}">{% trans 'Экспорт CSV' %}</a>
+        </div>
+        {% if loan_history %}
+            <div class="table-responsive">
+                <table class="table align-middle catalog-table">
+                    <thead><tr><th>{% trans 'Книга' %}</th><th>{% trans 'Читатель' %}</th><th>{% trans 'Дата выдачи' %}</th><th>{% trans 'Дата возврата' %}</th><th>{% trans 'Статус' %}</th></tr></thead>
+                    <tbody>
+                        {% for loan in loan_history %}
+                            <tr><td>{{ loan.book.title }}</td><td>{{ loan.reader.full_name }}</td><td>{{ loan.issue_date|date:'d.m.Y' }}</td><td>{{ loan.return_date|date:'d.m.Y'|default:'-' }}</td><td>{{ loan.display_status }}</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <p class="muted-text">{% trans 'История операций пока пуста.' %}</p>
+        {% endif %}
+    </article>
+
+    <article class="table-panel">
+        <div class="heading-row compact">
+            <h3>{% trans 'Популярные книги' %}</h3>
+            <a class="btn btn-sm btn-outline-primary" href="{% url 'library:report_csv' 'popular' %}">{% trans 'Экспорт CSV' %}</a>
+        </div>
+        {% if popular_books %}
+            <div class="table-responsive">
+                <table class="table align-middle catalog-table">
+                    <thead><tr><th>{% trans 'Книга' %}</th><th>{% trans 'Автор' %}</th><th>{% trans 'Количество выдач' %}</th></tr></thead>
+                    <tbody>
+                        {% for book in popular_books %}
+                            <tr><td>{{ book.title }}</td><td>{{ book.author }}</td><td>{{ book.loans_count }}</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <p class="muted-text">{% trans 'Популярные книги появятся после выдачи.' %}</p>
+        {% endif %}
+    </article>
+</section>
+{% endblock %}

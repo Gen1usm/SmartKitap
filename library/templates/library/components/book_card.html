@@ -1,0 +1,7 @@
+{% load i18n %}
+<article class="ui-book-card{% if compact %} book-card-compact{% endif %}">
+    <a class="book-cover-link" href="{% url 'library:book_details' book.pk %}" data-book-dialog tabindex="-1" aria-hidden="true">{% include 'library/components/cover.html' %}</a>
+    <div class="ui-book-body"><h3><a class="book-title" href="{% url 'library:book_details' book.pk %}" data-book-dialog>{{ book.title }}</a></h3><p class="book-author">{{ book.author }}</p><span class="genre-chip">{{ book.genre }}</span>
+        {% if not compact %}<p class="copy-count">{% blocktrans with available=book.available_copies total=book.total_copies %}{{ available }} из {{ total }} доступно{% endblocktrans %}</p>{% include 'library/book_actions.html' %}{% endif %}
+    </div>
+</article>

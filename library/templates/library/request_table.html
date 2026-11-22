@@ -1,0 +1,29 @@
+{% load i18n %}
+<div class="table-responsive"><table class="table align-middle request-table">
+    <thead><tr><th>{% trans 'Книга' %}</th>{% if managing %}<th>{% trans 'Ученик' %}</th>{% endif %}<th>{% trans 'Дата создания' %}</th><th>{% trans 'Статус' %}</th><th>{% trans 'Срок возврата' %}</th><th>{% trans 'Комментарий библиотекаря' %}</th>{% if managing %}<th>{% trans 'Действия' %}</th>{% endif %}</tr></thead>
+    <tbody>{% for item in book_requests %}<tr>
+        <td><strong>{{ item.book.title }}</strong><div class="help-text">{{ item.book.author }}</div></td>
+        {% if managing %}<td>{{ item.student.reader.full_name }}<div class="help-text">{{ item.student.reader.class_name }}</div></td>{% endif %}
+        <td>{{ item.created_at|date:'d.m.Y H:i' }}</td>
+        <td><span class="status-badge request-{{ item.status }}">{{ item.get_status_display }}</span></td>
+        <td>{{ item.loan.due_date|date:'d.m.Y'|default:'—' }}</td><td>{{ item.note|default:'—' }}</td>
+        {% if managing %}<td>
+        {% if item.status == 'pending' or item.status == 'approved' %}
+        <form method="post" action="{% url 'library:request_action' item.pk %}" class="request-action-form">
+            {% csrf_token %}
+            <label class="visually-hidden" for="note-{{ item.pk }}">{% trans 'Комментарий библиотекаря' %}</label>
+            <input id="note-{{ item.pk }}" class="form-control form-control-sm" name="note" value="{{ item.note }}" maxlength="500" placeholder="{% trans 'Комментарий библиотекаря' %}">
+            {% if item.status == 'approved' %}
+            <label for="due-{{ item.pk }}">{% trans 'Срок возврата' %}</label>
+            <input id="due-{{ item.pk }}" class="form-control form-control-sm" type="date" name="due_date" value="{{ default_due_date }}">
+            {% endif %}
+            <div class="book-actions">
+                {% if item.status == 'pending' %}<button class="btn btn-sm btn-primary" name="action" value="approve">{% trans 'Принять' %}</button>
+                {% else %}<button class="btn btn-sm btn-primary" name="action" value="issue">{% trans 'Выдать книгу' %}</button>{% endif %}
+                <button class="btn btn-sm btn-outline-danger" name="action" value="reject">{% trans 'Отклонить' %}</button>
+            </div>
+        </form>
+        {% elif item.status == 'issued' %}<a class="btn btn-sm btn-outline-primary" href="{% url 'library:loans' %}?q={{ item.student.reader.full_name|urlencode }}">{% trans 'Выдача и возврат' %}</a>{% endif %}
+        </td>{% endif %}
+    </tr>{% empty %}<tr><td colspan="7">{% trans 'Запросов пока нет' %}</td></tr>{% endfor %}</tbody>
+</table></div>

@@ -1,0 +1,31 @@
+{% extends 'library/base.html' %}
+{% load i18n %}
+{% block title %}{% if editing %}{% trans 'Редактирование профиля' %}{% else %}{% trans 'Регистрация ученика' %}{% endif %} - SmartKitap{% endblock %}
+{% block content %}
+<section class="page-heading">
+    <p class="section-kicker">{% trans 'Ученики' %}</p>
+    <h2>{% if editing %}{% trans 'Редактирование профиля' %}{% else %}{% trans 'Регистрация ученика' %}{% endif %}</h2>
+</section>
+<section class="form-panel">
+    <form method="post">
+        {% csrf_token %}
+        {{ form.non_field_errors }}
+        <div class="form-grid">
+        {% for field in form %}
+            <div class="form-field">
+                <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                {{ field }}
+                {% if field.help_text %}<div class="help-text">{{ field.help_text }}</div>{% endif %}
+                {% for error in field.errors %}<p class="field-error">{{ error }}</p>{% endfor %}
+            </div>
+        {% endfor %}
+        </div>
+        <div class="form-actions">
+            <button class="btn btn-primary">{% if editing %}{% trans 'Сохранить' %}{% else %}{% trans 'Зарегистрировать' %}{% endif %}</button>
+            {% if request.user.is_staff %}<a class="btn btn-outline-secondary" href="{% url 'library:students' %}">{% trans 'Отмена' %}</a>
+            {% elif editing %}<a class="btn btn-outline-secondary" href="{% url 'library:student_dashboard' %}">{% trans 'Отмена' %}</a>
+            {% else %}<a class="btn btn-outline-secondary" href="{% url 'library:login' %}">{% trans 'Войти' %}</a>{% endif %}
+        </div>
+    </form>
+</section>
+{% endblock %}

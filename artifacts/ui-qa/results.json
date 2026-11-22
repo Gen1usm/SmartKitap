@@ -1,0 +1,19 @@
+{
+  "checks": [
+    "Kazakh dashboard, ORM totals, actual PDF percentage and 167 px sidebar",
+    "Action menu opens, closes outside/on Escape and restores focus",
+    "Book dialog, visible skeleton, error recovery, retry, Escape and focus return",
+    "Real due-date notification acknowledged with CSRF and survives reload; toast dismissed",
+    "Search clear, real title search, combined filters, table view, no results and reset",
+    "Cover fallback, rights-aware dialog actions and actual request created from dialog",
+    "390 px drawer, focus trap, Escape, backdrop, focus restoration and no page overflow",
+    "Mobile catalog and real Russian/Kazakh language switching",
+    "Responsive dashboard at 320, 768, 900, 1126 and 1440 pixels",
+    "Staff dashboard, all management sections, proper dialog permissions and logout",
+    "Book details remain accessible as an ordinary page without JavaScript"
+  ],
+  "page_errors": [],
+  "expected_injected_errors": [
+    "503 http://127.0.0.1:52455/books/3/"
+  ]
+}

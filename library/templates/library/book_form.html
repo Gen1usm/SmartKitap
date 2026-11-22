@@ -1,0 +1,63 @@
+{% extends 'library/base.html' %}
+{% load i18n static %}
+
+{% block title %}
+    {% if object %}{% trans 'Редактирование книги' %}{% else %}{% trans 'Добавление книги' %}{% endif %} - SmartKitap
+{% endblock %}
+
+{% block content %}
+<section class="page-heading">
+    <p class="section-kicker">{% trans 'Каталог книг' %}</p>
+    <h2>{% if object %}{% trans 'Редактирование книги' %}{% else %}{% trans 'Добавление книги' %}{% endif %}</h2>
+    <p>{% trans 'Заполните данные книги. Доступные экземпляры рассчитываются системой автоматически.' %}</p>
+</section>
+
+<section class="filter-panel" id="metadata-lookup"
+    data-url="{% url 'library:book_metadata' %}"
+    data-unavailable="{% trans 'Open Library недоступна. Заполните данные книги вручную.' %}"
+    data-empty="{% trans 'Книги не найдены' %}" data-select="{% trans 'Использовать данные' %}"
+    data-selected="{% trans 'Данные заполнены. Проверьте их перед сохранением.' %}">
+    <h3>{% trans 'Поиск метаданных в Open Library' %}</h3>
+    <p class="help-text">{% trans 'Поиск заполняет описание книги. Электронный файл загружается отдельно.' %}</p>
+    <form id="metadata-search" class="inline-form">
+        <label class="visually-hidden" for="metadata-query">{% trans 'Название или автор' %}</label>
+        <input id="metadata-query" class="form-control" type="search" required minlength="2" maxlength="200" placeholder="{% trans 'Название или автор' %}">
+        <button class="btn btn-outline-primary">{% trans 'Найти' %}</button>
+    </form>
+    <p id="metadata-status" role="status" class="help-text"></p>
+    <div id="metadata-results" class="metadata-results"></div>
+    <label><input id="import-cover" type="checkbox" checked> {% trans 'Импортировать обложку' %}</label>
+</section>
+
+<section class="form-panel">
+    <form method="post" enctype="multipart/form-data" novalidate>
+        {% csrf_token %}
+        {% if form.non_field_errors %}
+            <div class="alert alert-danger">{{ form.non_field_errors }}</div>
+        {% endif %}
+
+        <div class="form-grid">
+            {% for field in form %}
+                {% if field.is_hidden %}{{ field }}{% else %}
+                <div class="form-field {% if field.name == 'description' or field.name == 'cover' %}wide{% endif %}">
+                    <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                    {{ field }}
+                    {% if field.help_text %}
+                        <p class="help-text">{{ field.help_text }}</p>
+                    {% endif %}
+                    {% for error in field.errors %}
+                        <p class="field-error">{{ error }}</p>
+                    {% endfor %}
+                </div>
+                {% endif %}
+            {% endfor %}
+        </div>
+
+        <div class="form-actions">
+            <button class="btn btn-primary" type="submit">{% trans 'Сохранить' %}</button>
+            <a class="btn btn-outline-secondary" href="{% url 'library:books' %}">{% trans 'Отмена' %}</a>
+        </div>
+    </form>
+</section>
+{% endblock %}
+{% block scripts %}<script src="{% static 'library/js/metadata.js' %}" defer></script>{% endblock %}

@@ -1,0 +1,4 @@
+{% load i18n ui %}
+<section class="recommendations ui-panel" aria-labelledby="recommendations-heading"><div class="section-heading"><h3 id="recommendations-heading">{% trans 'Рекомендуем тебе' %}</h3><a class="text-link" href="{% url 'library:books' %}">{% trans 'Смотреть всё' %}{% icon 'arrow-right' %}</a></div>
+    <div class="recommendation-grid">{% for book in recommendations %}{% include 'library/components/book_card.html' with compact=True %}{% empty %}<p class="muted-text">{% trans 'Новые книги скоро появятся в каталоге.' %}</p>{% endfor %}</div>
+</section>

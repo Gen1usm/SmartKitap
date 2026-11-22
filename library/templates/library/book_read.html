@@ -1,0 +1,34 @@
+{% extends 'library/base.html' %}
+{% load i18n static %}
+{% block title %}{{ book.title }} - SmartKitap{% endblock %}
+{% block content %}
+<section class="page-heading"><div class="heading-row"><div><p class="section-kicker">{% trans 'Онлайн-чтение' %}</p><h2>{{ book.title }}</h2><p>{{ book.author }}</p></div>
+<a class="btn btn-outline-primary" href="{% url 'library:books' %}">{% trans 'Вернуться в каталог' %}</a></div></section>
+{% if reading_error %}<section class="empty-state"><p role="alert">{{ reading_error }}</p></section>
+{% else %}
+<section class="reader-toolbar">
+    {% if digital.format == 'epub' %}
+    <div class="book-actions">
+        {% if position > 1 %}<a class="btn btn-outline-primary" href="?chapter={{ position|add:'-1' }}">{% trans 'Назад' %}</a>{% endif %}
+        <span>{% trans 'Глава' %} {{ position }} / {{ position_count }}</span>
+        {% if position < position_count %}<a class="btn btn-outline-primary" href="?chapter={{ position|add:'1' }}">{% trans 'Вперёд' %}</a>{% endif %}
+    </div>
+    {% endif %}
+    {% if can_save_progress %}<form class="inline-form" method="post" action="{% url 'library:reading_progress' book.pk %}">
+        {% csrf_token %}
+        <label for="reading-position">{% if digital.format == 'pdf' %}{% trans 'Последняя прочитанная страница' %}{% else %}{% trans 'Глава' %}{% endif %}</label>
+        <input id="reading-position" class="form-control position-input" type="number" name="position" min="1" max="{{ position_count }}" value="{{ position }}" required>
+        <button class="btn btn-primary">{% trans 'Сохранить прогресс' %}</button>
+    </form>{% endif %}
+</section>
+{% if digital.format == 'pdf' %}
+    <p class="help-text">{% trans 'Укажите прочитанную страницу и сохраните прогресс, чтобы продолжить с неё позже.' %}</p>
+    <div class="pdf-reader-container" id="pdf-reader-container">
+        <div class="pdf-controls"><button class="btn btn-outline-primary" type="button" id="pdf-fullscreen"
+            data-enter="{% trans 'На весь экран' %}" data-exit="{% trans 'Выйти из полноэкранного режима' %}" hidden>{% trans 'На весь экран' %}</button></div>
+        <iframe class="pdf-reader" title="{{ book.title }}" src="{% url 'library:book_content' book.pk %}#page={{ position }}&amp;view=FitH" allow="fullscreen" allowfullscreen></iframe>
+    </div>
+{% else %}<article class="epub-reader">{{ chapter_html }}</article>{% endif %}
+{% endif %}
+{% endblock %}
+{% block scripts %}<script src="{% static 'library/js/pdf_reader.js' %}" defer></script>{% endblock %}

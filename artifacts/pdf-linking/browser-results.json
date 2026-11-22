@@ -1,0 +1,60 @@
+{
+  "books": [
+    {
+      "title": "Абай жолы",
+      "file": "media/books/abay_zholy.pdf",
+      "http_status": 200,
+      "native_viewer": true,
+      "native_page_count": 280,
+      "elapsed_seconds": 4.09
+    },
+    {
+      "title": "Ай мен Айша",
+      "file": "media/books/ai_men_aisha.pdf",
+      "http_status": 200,
+      "native_viewer": true,
+      "native_page_count": 578,
+      "elapsed_seconds": 4.35
+    },
+    {
+      "title": "Ботагөз",
+      "file": "media/books/botagoz.pdf",
+      "http_status": 200,
+      "native_viewer": true,
+      "native_page_count": 690,
+      "elapsed_seconds": 28.34
+    },
+    {
+      "title": "Көшпенділер",
+      "file": "media/books/koshpendiler.pdf",
+      "http_status": 200,
+      "native_viewer": true,
+      "native_page_count": 340,
+      "elapsed_seconds": 4.93
+    },
+    {
+      "title": "Менің атым Қожа",
+      "file": "media/books/menin_atym_qoja.pdf",
+      "http_status": 200,
+      "native_viewer": true,
+      "native_page_count": 24,
+      "elapsed_seconds": 2.51
+    },
+    {
+      "title": "Ұлпан",
+      "file": "media/books/ulpan.pdf",
+      "http_status": 200,
+      "native_viewer": true,
+      "native_page_count": 289,
+      "elapsed_seconds": 13.27
+    }
+  ],
+  "page_errors": [],
+  "byte_range_requests": [],
+  "fullscreen": true,
+  "mobile": true,
+  "page_navigation": true,
+  "zoom": true,
+  "russian": true,
+  "anonymous_media_access_blocked": true
+}

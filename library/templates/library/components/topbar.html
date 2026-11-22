@@ -1,0 +1,32 @@
+{% load i18n ui %}{% get_current_language as CURRENT_LANGUAGE %}
+<header class="topbar">
+    <button class="icon-button mobile-nav" type="button" data-drawer-open aria-controls="app-sidebar" aria-expanded="false" aria-label="{% trans 'Открыть меню' %}">{% icon 'menu' %}</button>
+    <form class="topbar-search" action="{% if online_catalog %}{% url 'library:online_books' %}{% else %}{% url 'library:books' %}{% endif %}" method="get" role="search">
+        {% include 'library/components/search_input.html' with input_id='global-search' value=query %}
+        {% if selected_genre %}<input type="hidden" name="genre" value="{{ selected_genre }}">{% endif %}
+        {% if selected_author %}<input type="hidden" name="author" value="{{ selected_author }}">{% endif %}
+        {% if selected_availability %}<input type="hidden" name="availability" value="{{ selected_availability }}">{% endif %}
+        <button class="visually-hidden" type="submit" tabindex="-1">{% trans 'Найти' %}</button>
+    </form>
+    <div class="topbar-actions">
+        {% if request.user.is_authenticated %}
+        <details class="notification-menu" data-popup>
+            <summary class="icon-button notification-trigger" aria-label="{% trans 'Уведомления' %}" aria-expanded="false">{% icon 'bell' %}{% if ui_unread_count %}<span class="notification-dot"><span class="visually-hidden">{{ ui_unread_count }} {% trans 'Непрочитанные уведомления' %}</span></span>{% endif %}</summary>
+            <div class="notification-panel popup-panel">
+                <div class="section-heading"><h2>{% trans 'Уведомления' %}</h2><span class="notification-count">{{ ui_unread_count }}</span></div>
+                {% for notice in ui_notifications %}<a class="notification-item{% if notice.unread %} unread{% endif %}" href="{{ notice.url }}">{% icon notice.icon %}<span><strong>{{ notice.title }}</strong><small>{{ notice.text }}</small></span></a>
+                {% empty %}<p class="notification-empty">{% trans 'Новых уведомлений нет. Приятного чтения!' %}</p>{% endfor %}
+                {% if ui_unread_count %}<form action="{% url 'library:notifications_read' %}" method="post" data-notifications-read>{% csrf_token %}<button class="text-link" type="submit">{% trans 'Отметить всё прочитанным' %}</button></form>{% endif %}
+            </div>
+        </details>
+        <a class="account-name" href="{% if ui_is_student %}{% url 'library:profile_edit' %}{% else %}{% url 'library:dashboard' %}{% endif %}" title="{{ ui_user_name }}">{{ request.user.username }}</a>
+        {% endif %}
+        <form class="language-switcher" action="{% url 'set_language' %}" method="post" aria-label="{% trans 'Язык интерфейса' %}">
+            {% csrf_token %}<input type="hidden" name="next" value="{{ request.get_full_path }}">
+            <button class="{% if CURRENT_LANGUAGE == 'kk' %}active{% endif %}" type="submit" name="language" value="kk" lang="kk" aria-label="Қазақша" aria-pressed="{% if CURRENT_LANGUAGE == 'kk' %}true{% else %}false{% endif %}">ҚАЗ</button><span aria-hidden="true">|</span>
+            <button class="{% if CURRENT_LANGUAGE == 'ru' %}active{% endif %}" type="submit" name="language" value="ru" lang="ru" aria-label="Русский" aria-pressed="{% if CURRENT_LANGUAGE == 'ru' %}true{% else %}false{% endif %}">РУС</button>
+        </form>
+        {% if request.user.is_authenticated %}<form action="{% url 'library:logout' %}" method="post">{% csrf_token %}<button class="login-link logout-button" type="submit">{% icon 'log-out' %}<span>{% trans 'Выход' %}</span></button></form>
+        {% else %}<a class="login-link" href="{% url 'library:login' %}">{% trans 'Вход' %}</a><a class="text-link register-link" href="{% url 'library:register' %}">{% trans 'Регистрация' %}</a>{% endif %}
+    </div>
+</header>

@@ -1,0 +1,7 @@
+{% load i18n ui %}
+{% trans 'Главная' as home_label %}{% trans 'Каталог книг' as catalog_label %}{% trans 'Ученики' as students_label %}{% trans 'Запросы книг' as requests_label %}{% trans 'Читатели' as readers_label %}{% trans 'Мои запросы' as my_requests_label %}{% trans 'Онлайн-чтение' as reading_label %}{% trans 'Выдача и возврат' as loans_label %}{% trans 'Отчёты' as reports_label %}
+{% if request.user.is_staff or request.user.is_superuser %}{% nav_link 'dashboard' home_label 'house' %}{% elif request.user.is_authenticated %}{% nav_link 'student_dashboard' home_label 'house' %}{% endif %}
+{% nav_link 'books' catalog_label 'book-open' 'book_details' %}
+{% if request.user.is_staff or request.user.is_superuser %}{% nav_link 'students' students_label 'users' 'student_add,student_edit' %}{% nav_link 'requests' requests_label 'clipboard-list' %}{% nav_link 'readers' readers_label 'users' 'reader_add,reader_edit' %}{% elif ui_is_student %}{% nav_link 'my_requests' my_requests_label 'clipboard-list' %}{% endif %}
+{% nav_link 'online_books' reading_label 'book-open' 'book_read' %}
+{% if request.user.is_staff or request.user.is_superuser %}{% nav_link 'loans' loans_label 'layers' %}{% nav_link 'reports' reports_label 'chart-no-axes-combined' %}{% endif %}

@@ -1,0 +1,29 @@
+{% load static i18n ui %}{% get_current_language as CURRENT_LANGUAGE %}
+<!doctype html>
+<html lang="{{ CURRENT_LANGUAGE }}">
+<head>
+    <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#0B382B">
+    <title>{% block title %}SmartKitap{% endblock %}</title>
+    <link rel="icon" href="{% static 'library/images/smartkitap-mark.svg' %}" type="image/svg+xml">
+    <link rel="stylesheet" href="{% static 'library/css/bootstrap.min.css' %}">
+    <link rel="stylesheet" href="{% static 'library/css/styles.css' %}">
+    <link rel="stylesheet" href="{% static 'library/css/tokens.css' %}">
+    <link rel="stylesheet" href="{% static 'library/css/components.css' %}">
+    <script src="{% static 'library/js/components.js' %}" defer></script>
+</head>
+<body data-notification-success="{% trans 'Все уведомления прочитаны' %}" data-network-error="{% trans 'Не удалось сохранить. Попробуй ещё раз.' %}">
+    <a class="skip-link" href="#main-content">{% trans 'Перейти к содержимому' %}</a>
+    <div class="app-shell">
+        {% include 'library/components/sidebar.html' %}
+        <div class="content-wrapper">
+            {% include 'library/components/topbar.html' %}
+            <main class="main-content" id="main-content" tabindex="-1">{% block content %}{% endblock %}</main>
+            <footer class="app-footer"><span>SmartKitap · {% trans 'Читай. Узнавай. Вдохновляйся.' %}</span><details class="asset-credits"><summary>{% trans 'Источники изображений' %}</summary><p><a href="https://commons.wikimedia.org/wiki/File:Panorame_of_Almaty_-_panoramio.jpg" target="_blank" rel="noopener">Алматы: Ilya Rudakov</a> · <a href="https://creativecommons.org/licenses/by-sa/3.0/" target="_blank" rel="noopener">CC BY-SA 3.0</a> ({% trans 'Кадрирование и цветовое оформление' %}). <a href="https://www.pexels.com/photo/a-cup-of-coffee-on-an-open-books-near-the-potted-plant-13827575/" target="_blank" rel="noopener">Pexels</a> · <a href="https://lucide.dev/" target="_blank" rel="noopener">Lucide</a> (ISC).</p></details></footer>
+        </div>
+    </div>
+    <div class="toast-region" aria-label="{% trans 'Уведомления' %}">{% for message in messages %}{% include 'library/components/toast_notification.html' %}{% endfor %}</div>
+    {% include 'library/components/book_details_dialog.html' %}
+    {% block scripts %}{% endblock %}
+</body>
+</html>

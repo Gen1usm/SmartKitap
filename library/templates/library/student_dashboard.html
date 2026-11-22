@@ -1,0 +1,18 @@
+{% extends 'library/base.html' %}{% load i18n ui %}
+{% block title %}{% trans 'Личный кабинет' %} — SmartKitap{% endblock %}
+{% block content %}
+<div class="student-home">
+    {% include 'library/components/welcome_banner.html' %}
+    <section class="stats-grid dashboard-stats" aria-label="{% trans 'Моя библиотека' %}">
+        {% trans 'Мои книги' as stat_label %}{% url 'library:student_dashboard' as stat_url %}{% include 'library/components/stat_card.html' with label=stat_label value=my_books_count href=stat_url|add:'#my-books' symbol='layers' tone='mint' %}
+        {% trans 'Доступно в каталоге' as stat_label %}{% url 'library:books' as stat_url %}{% include 'library/components/stat_card.html' with label=stat_label value=catalog_available_count href=stat_url|add:'?availability=available' symbol='book-open' tone='cream' %}
+        {% trans 'Запросы' as stat_label %}{% url 'library:my_requests' as stat_url %}{% include 'library/components/stat_card.html' with label=stat_label value=my_requests_count href=stat_url symbol='clipboard-list' tone='peach' %}
+        {% trans 'Возвращено книг' as stat_label %}{% url 'library:student_dashboard' as stat_url %}{% include 'library/components/stat_card.html' with label=stat_label value=returned_count href=stat_url|add:'#reading-history' symbol='bookmark' tone='blue' %}
+    </section>
+    {% if continue_reading %}{% include 'library/components/continue_reading_card.html' with reading=continue_reading %}{% else %}<section class="start-reading ui-panel"><div><h3>{% trans 'Твоя следующая история уже ждёт' %}</h3><p>{% trans 'Открой книгу и сохрани страницу — продолжишь с того же места.' %}</p></div><a class="btn btn-primary" href="{% url 'library:online_books' %}">{% icon 'book-open' %}{% trans 'Выбрать книгу' %}</a></section>{% endif %}
+    {% include 'library/components/book_recommendations.html' %}
+    <section class="ui-panel my-books-panel" id="my-books" aria-labelledby="my-books-heading"><div class="section-heading"><h3 id="my-books-heading">{% trans 'Мои книги' %}</h3><a class="text-link" href="{% url 'library:books' %}">{% trans 'Перейти в каталог' %}{% icon 'arrow-right' %}</a></div>{% include 'library/components/my_books_table.html' with loans=current_loans %}</section>
+    <section class="ui-panel request-summary"><div class="section-heading"><h3>{% trans 'Мои запросы' %}</h3><a class="text-link" href="{% url 'library:my_requests' %}">{% trans 'Все запросы' %}{% icon 'arrow-right' %}</a></div>{% include 'library/request_table.html' %}</section>
+    <section class="ui-panel history-panel" id="reading-history"><div class="section-heading"><h3>{% trans 'Ранее полученные книги' %}</h3><a class="text-link" href="{% url 'library:profile_edit' %}">{% icon 'pencil' %}{% trans 'Редактирование профиля' %}</a></div>{% include 'library/components/my_books_table.html' with loans=previous_loans %}</section>
+</div>
+{% endblock %}

@@ -1,0 +1,18 @@
+{% extends 'library/base.html' %}{% load i18n ui %}
+{% block title %}{% trans 'Главная' %} — SmartKitap{% endblock %}
+{% block content %}
+<div class="staff-home">
+    {% trans 'Добро пожаловать, администратор!' as admin_banner_title %}
+    {% trans 'Управляйте библиотекой, книгами и читателями в одном месте.' as admin_banner_description %}
+    {% include 'library/components/welcome_banner.html' with banner_title=admin_banner_title banner_description=admin_banner_description %}
+    <section class="stats-grid dashboard-stats" aria-label="{% trans 'Панель управления' %}">
+        {% trans 'Всего экземпляров' as stat_label %}{% url 'library:books' as stat_url %}{% include 'library/components/stat_card.html' with label=stat_label value=total_copies href=stat_url symbol='layers' tone='mint' %}
+        {% trans 'Доступно экземпляров' as stat_label %}{% include 'library/components/stat_card.html' with label=stat_label value=available_copies href=stat_url|add:'?availability=available' symbol='book-open' tone='cream' %}
+        {% trans 'Запросы книг' as stat_label %}{% url 'library:requests' as stat_url %}{% include 'library/components/stat_card.html' with label=stat_label value=pending_requests_count href=stat_url|add:'?status=pending' symbol='clipboard-list' tone='peach' %}
+        {% trans 'Читатели' as stat_label %}{% url 'library:readers' as stat_url %}{% include 'library/components/stat_card.html' with label=stat_label value=readers_count href=stat_url symbol='users' tone='blue' %}
+    </section>
+    <section class="ui-panel staff-overview"><div><h3>{% trans 'Выдача и возврат' %}</h3><p>{% trans 'Текущие выдачи' %}: <strong>{{ active_loans_count }}</strong> · {% trans 'Просроченные выдачи' %}: <strong>{{ overdue_loans_count }}</strong> · {% trans 'Зарезервировано экземпляров' %}: <strong>{{ reserved_copies }}</strong></p></div><a class="btn btn-primary" href="{% url 'library:loans' %}">{% icon 'layers' %}{% trans 'Выдача и возврат' %}</a></section>
+    {% include 'library/components/book_recommendations.html' %}
+    <section class="ui-panel"><div class="section-heading"><h3>{% trans 'Последние операции' %}</h3><a class="text-link" href="{% url 'library:reports' %}">{% trans 'Открыть отчёты' %}{% icon 'arrow-right' %}</a></div>{% if latest_loans %}<div class="table-responsive"><table class="table align-middle"><thead><tr><th>{% trans 'Книга' %}</th><th>{% trans 'Читатель' %}</th><th>{% trans 'Дата выдачи' %}</th><th>{% trans 'Срок возврата' %}</th><th>{% trans 'Статус' %}</th></tr></thead><tbody>{% for loan in latest_loans %}<tr><td><a class="book-title" href="{% url 'library:book_details' loan.book.pk %}" data-book-dialog>{{ loan.book.title }}</a></td><td>{{ loan.reader.full_name }}</td><td>{{ loan.issue_date|date:'d.m.Y' }}</td><td>{{ loan.due_date|date:'d.m.Y' }}</td><td>{% include 'library/components/status_badge.html' %}</td></tr>{% endfor %}</tbody></table></div>{% else %}{% trans 'Операций пока нет.' as empty_title %}{% url 'library:loans' as loans_url %}{% trans 'Выдача и возврат' as loans_label %}{% include 'library/components/empty_state.html' with title=empty_title action_url=loans_url action_label=loans_label %}{% endif %}</section>
+</div>
+{% endblock %}

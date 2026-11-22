@@ -1,0 +1,2 @@
+{% load i18n ui %}
+<div class="toast-notification toast-{{ message.tags|default:'info' }}" role="{% if message.tags == 'error' %}alert{% else %}status{% endif %}" data-toast>{% if message.tags == 'success' %}{% icon 'check' %}{% elif message.tags == 'error' %}{% icon 'circle-alert' %}{% elif message.tags == 'warning' %}{% icon 'triangle-alert' %}{% else %}{% icon 'info' %}{% endif %}<span>{{ message }}</span><button class="icon-button" type="button" data-toast-close aria-label="{% trans 'Закрыть уведомление' %}">{% icon 'x' %}</button></div>

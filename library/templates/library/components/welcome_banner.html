@@ -1,0 +1,6 @@
+{% load static i18n %}
+<section class="welcome-banner" aria-labelledby="welcome-heading">
+    <div class="welcome-scenery" aria-hidden="true"></div>
+    <div class="welcome-decoration" aria-hidden="true"><img class="welcome-leaves" src="{% static 'library/images/botanical.svg' %}" alt=""><span>Кітап —<br>білімнің қазынасы</span></div>
+    <div class="welcome-copy">{% if banner_title %}<h2 id="welcome-heading">{{ banner_title }}</h2>{% else %}<p>{% trans 'Добро пожаловать,' %}</p><h2 id="welcome-heading">{{ ui_user_name }}!</h2>{% endif %}<p class="welcome-subtitle">{% if banner_description %}{{ banner_description }}{% else %}{% trans 'Твоя библиотека — в одном месте.' %}{% endif %}</p></div>
+</section>

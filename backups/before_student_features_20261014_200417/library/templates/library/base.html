@@ -1,0 +1,77 @@
+{% load static i18n %}
+<!doctype html>
+<html lang="{{ LANGUAGE_CODE }}">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}SmartKitap{% endblock %}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'library/css/styles.css' %}">
+</head>
+<body>
+    <div class="app-shell">
+        <aside class="sidebar">
+            <div class="sidebar-brand">
+                <span class="brand-mark">S</span>
+                <span>SmartKitap</span>
+            </div>
+
+            <nav class="sidebar-nav" aria-label="{% trans 'Основная навигация' %}">
+                <a class="nav-link {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}" href="{% url 'library:dashboard' %}">{% trans 'Главная' %}</a>
+                <a class="nav-link {% if request.resolver_match.url_name in 'books book_add book_edit book_delete' %}active{% endif %}" href="{% url 'library:books' %}">{% trans 'Каталог книг' %}</a>
+                <a class="nav-link {% if request.resolver_match.url_name in 'readers reader_add reader_edit reader_delete' %}active{% endif %}" href="{% url 'library:readers' %}">{% trans 'Читатели' %}</a>
+                <a class="nav-link {% if request.resolver_match.url_name == 'loans' %}active{% endif %}" href="{% url 'library:loans' %}">{% trans 'Выдача и возврат' %}</a>
+                <a class="nav-link {% if request.resolver_match.url_name in 'reports report_csv' %}active{% endif %}" href="{% url 'library:reports' %}">{% trans 'Отчёты' %}</a>
+            </nav>
+        </aside>
+
+        <div class="content-wrapper">
+            <header class="topbar">
+                <div>
+                    <p class="topbar-label">{% trans 'Электронная библиотека школы' %}</p>
+                    <h1 class="topbar-title">SmartKitap</h1>
+                </div>
+                <div class="topbar-actions">
+                    {% get_current_language as CURRENT_LANGUAGE %}
+                    <form class="language-switcher" action="{% url 'set_language' %}" method="post">
+                        {% csrf_token %}
+                        <input type="hidden" name="next" value="{{ request.get_full_path }}">
+                        <button class="{% if CURRENT_LANGUAGE == 'kk' %}active{% endif %}" type="submit" name="language" value="kk">ҚАЗ</button>
+                        <span>|</span>
+                        <button class="{% if CURRENT_LANGUAGE == 'ru' %}active{% endif %}" type="submit" name="language" value="ru">РУС</button>
+                    </form>
+                    {% if request.user.is_authenticated %}
+                        <form action="{% url 'library:logout' %}" method="post">
+                            {% csrf_token %}
+                            <button class="login-link logout-button" type="submit">{% trans 'Выход' %}</button>
+                        </form>
+                    {% else %}
+                        <a class="login-link" href="{% url 'library:login' %}">{% trans 'Вход' %}</a>
+                    {% endif %}
+                </div>
+            </header>
+
+            <nav class="mobile-nav" aria-label="{% trans 'Мобильная навигация' %}">
+                <a class="{% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}" href="{% url 'library:dashboard' %}">{% trans 'Главная' %}</a>
+                <a class="{% if request.resolver_match.url_name in 'books book_add book_edit book_delete' %}active{% endif %}" href="{% url 'library:books' %}">{% trans 'Книги' %}</a>
+                <a class="{% if request.resolver_match.url_name in 'readers reader_add reader_edit reader_delete' %}active{% endif %}" href="{% url 'library:readers' %}">{% trans 'Читатели' %}</a>
+                <a class="{% if request.resolver_match.url_name == 'loans' %}active{% endif %}" href="{% url 'library:loans' %}">{% trans 'Выдача' %}</a>
+                <a class="{% if request.resolver_match.url_name in 'reports report_csv' %}active{% endif %}" href="{% url 'library:reports' %}">{% trans 'Отчёты' %}</a>
+            </nav>
+
+            <main class="main-content">
+                {% if messages %}
+                    <div class="messages">
+                        {% for message in messages %}
+                            <div class="alert alert-{{ message.tags|default:'info' }}" role="alert">{{ message }}</div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+                {% block content %}{% endblock %}
+            </main>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

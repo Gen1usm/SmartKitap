@@ -1,0 +1,8 @@
+{% load static i18n ui %}
+<aside class="sidebar" id="app-sidebar" aria-label="{% trans 'Основная навигация' %}" tabindex="-1">
+    <button class="icon-button sidebar-close" type="button" data-drawer-close aria-label="{% trans 'Закрыть меню' %}">{% icon 'x' %}</button>
+    {% include 'library/components/logo.html' %}
+    <nav class="sidebar-nav" aria-label="{% trans 'Основная навигация' %}">{% include 'library/navigation.html' %}</nav>
+    <div class="sidebar-art" aria-hidden="true"><img src="{% static 'library/images/botanical.svg' %}" alt=""><p>Көп оқы —<br>көкжиегіңді<br>кеңейт.</p>{% icon 'leaf' %}</div>
+</aside>
+<button class="drawer-backdrop" type="button" data-drawer-close tabindex="-1" aria-label="{% trans 'Закрыть меню' %}" hidden></button>

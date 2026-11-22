@@ -1,0 +1,5 @@
+{% load static i18n %}
+<a class="smartkitap-logo {% if compact %}logo-compact{% endif %}" href="{% url 'library:dashboard' %}" aria-label="SmartKitap — {% trans 'Главная' %}">
+    <img src="{% static 'library/images/smartkitap-mark.svg' %}" alt="" width="56" height="56">
+    {% if not compact %}<strong>SmartKitap</strong><span>{% trans 'Электронная библиотека школы' %}</span>{% endif %}
+</a>

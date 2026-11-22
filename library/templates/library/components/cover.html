@@ -1,0 +1,5 @@
+{% load i18n ui %}
+<span class="ui-cover {{ cover_class }}">
+    {% if book.cover %}<img src="{{ book.cover.url }}" alt="{% trans 'Обложка книги' %} {{ book.title }}" loading="lazy" data-cover-image>{% endif %}
+    <span class="cover-fallback"{% if book.cover %} hidden{% endif %}>{% icon 'book-open' %}<span>{{ book.title }}</span><small>{{ book.author }}</small><span class="visually-hidden">{% trans 'Нет обложки' %}</span></span>
+</span>

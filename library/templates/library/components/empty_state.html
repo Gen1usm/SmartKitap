@@ -1,0 +1,1 @@
+{% load ui %}<div class="empty-state ui-empty"><div class="empty-illustration" aria-hidden="true">{% icon 'book-open' %}{% icon 'leaf' %}</div><h3>{{ title }}</h3>{% if description %}<p>{{ description }}</p>{% endif %}{% if action_url %}<a class="btn btn-primary" href="{{ action_url }}">{{ action_label }}{% icon 'arrow-right' %}</a>{% endif %}</div>

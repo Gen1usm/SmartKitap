@@ -1,0 +1,26 @@
+{% extends 'library/base.html' %}
+{% load i18n %}
+
+{% block title %}{% trans 'Удаление книги' %} - SmartKitap{% endblock %}
+
+{% block content %}
+<section class="page-heading">
+    <p class="section-kicker">{% trans 'Каталог книг' %}</p>
+    <h2>{% trans 'Удаление книги' %}</h2>
+    <p>{% trans 'Подтвердите удаление записи из каталога.' %}</p>
+</section>
+
+<section class="delete-panel">
+    <h3>{{ object.title }}</h3>
+    <p>{{ object.author }} · {{ object.genre }} · {{ object.publication_year }}</p>
+    <p>{% trans 'Это действие удалит книгу из базы данных.' %}</p>
+
+    <form method="post">
+        {% csrf_token %}
+        <div class="form-actions">
+            <button class="btn btn-danger" type="submit">{% trans 'Удалить' %}</button>
+            <a class="btn btn-outline-secondary" href="{% url 'library:books' %}">{% trans 'Отмена' %}</a>
+        </div>
+    </form>
+</section>
+{% endblock %}

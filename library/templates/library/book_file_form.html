@@ -1,0 +1,18 @@
+{% extends 'library/base.html' %}
+{% load i18n %}
+{% block title %}{% trans 'Загрузить файл книги' %} - SmartKitap{% endblock %}
+{% block content %}
+<section class="page-heading"><h2>{% trans 'Загрузить файл книги' %}</h2><p>{{ book.title }} · {{ book.author }}</p></section>
+<section class="form-panel"><form method="post" enctype="multipart/form-data">
+{% csrf_token %}{{ form.non_field_errors }}
+<div class="form-grid">{% for field in form %}<div class="form-field">
+<label for="{{ field.id_for_label }}">{{ field.label }}</label>
+{% if field.name == 'file' %}<input id="{{ field.id_for_label }}" class="form-control" type="file" name="file" accept=".pdf,.epub" {% if not form.instance.pk %}required{% endif %}>
+{% if form.instance.pk %}<p class="help-text">{% trans 'Текущий файл' %}: {{ form.instance.format|upper }}</p>{% endif %}
+{% else %}{{ field }}{% endif %}
+{% if field.help_text %}<p class="help-text">{{ field.help_text }}</p>{% endif %}
+{% for error in field.errors %}<p class="field-error">{{ error }}</p>{% endfor %}
+</div>{% endfor %}</div>
+<div class="form-actions"><button class="btn btn-primary">{% trans 'Сохранить' %}</button><a class="btn btn-outline-secondary" href="{% url 'library:books' %}">{% trans 'Отмена' %}</a></div>
+</form></section>
+{% endblock %}

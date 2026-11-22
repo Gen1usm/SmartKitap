@@ -1,0 +1,6 @@
+{% load i18n ui %}
+<div class="search-input" data-search-input>
+    {% icon 'search' %}
+    <input type="search" id="{{ input_id|default:'book-search' }}" name="q" value="{{ value }}" placeholder="{% trans 'Поиск книг, авторов, жанров…' %}" aria-label="{% trans 'Поиск книг, авторов, жанров…' %}" autocomplete="off">
+    <button class="icon-button search-clear" type="button" data-search-clear aria-label="{% trans 'Очистить поиск' %}"{% if not value %} hidden{% endif %}>{% icon 'x' %}</button>
+</div>

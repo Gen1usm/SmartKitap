@@ -1,0 +1,2 @@
+{% load ui %}
+<a class="stat-card stat-{{ tone|default:'mint' }}" href="{{ href }}"><span class="stat-icon">{% icon symbol %}</span><span class="stat-content"><span class="stat-label">{{ label }}</span><span class="stat-value"><strong>{{ value }}</strong>{% icon 'chevron-right' %}</span></span></a>

@@ -1,0 +1,10 @@
+{% load i18n ui %}
+<section class="continue-reading ui-panel" aria-labelledby="continue-heading">
+    <h3 id="continue-heading">{% trans 'Продолжить чтение' %}</h3>
+    <div class="continue-content">{% include 'library/components/cover.html' with book=reading.book %}<div class="continue-copy"><a class="book-title" href="{% url 'library:book_details' reading.book.pk %}" data-book-dialog>{{ reading.book.title }}</a><p class="book-author">{{ reading.book.author }}</p>
+        <div class="reading-progress"><progress max="100" value="{{ reading.percent }}" aria-label="{% trans 'Прогресс чтения' %}">{{ reading.percent }}%</progress><span>{{ reading.percent }}%</span></div>
+        <p class="reading-position">{% if reading.format == 'epub' %}{% trans 'Глава' %}{% else %}{% trans 'Страница' %}{% endif %} {{ reading.position }} / {{ reading.total }}</p>
+        <a class="btn btn-primary" href="{% url 'library:book_read' reading.book.pk %}">{% icon 'play' %}{% trans 'Продолжить чтение' %}</a>
+    </div></div>
+    <div class="reading-decoration" aria-hidden="true"><span>Жақсы кітап —<br>жақсы серік ♡</span></div>
+</section>

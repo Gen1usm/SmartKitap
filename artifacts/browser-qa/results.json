@@ -1,0 +1,14 @@
+{
+  "passed": [
+    "Student registration with real CSRF and Kazakh dashboard",
+    "Student submits request and sees pending status",
+    "Staff approves and issues; student sees update; stock is consistent",
+    "Return restores stock and request history",
+    "PDF upload, embedded Chrome viewer, saved page and reload",
+    "EPUB chapter navigation and saved chapter",
+    "Mobile layout and Russian language switch",
+    "Staff manages student profile",
+    "Concurrent SQLite approvals reserve the last copy exactly once"
+  ],
+  "page_errors": []
+}

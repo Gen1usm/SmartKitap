@@ -1,0 +1,14 @@
+{% extends 'library/base.html' %}
+{% load i18n %}
+{% block title %}{% if managing %}{% trans 'Запросы книг' %}{% else %}{% trans 'Мои запросы' %}{% endif %} - SmartKitap{% endblock %}
+{% block content %}
+<section class="page-heading"><h2>{% if managing %}{% trans 'Запросы книг' %}{% else %}{% trans 'Мои запросы' %}{% endif %}</h2>
+<p>{% trans 'После принятия запроса библиотекарь резервирует экземпляр и оформляет выдачу.' %}</p></section>
+{% if managing %}<section class="filter-panel"><form class="inline-form" method="get">
+    <label for="request-status">{% trans 'Статус' %}</label><select id="request-status" class="form-select" name="status"><option value="">{% trans 'Все запросы' %}</option>
+    {% for value,label in statuses %}<option value="{{ value }}" {% if selected_status == value %}selected{% endif %}>{{ label }}</option>{% endfor %}</select>
+    <button class="btn btn-primary">{% trans 'Найти' %}</button>
+</form></section>{% endif %}
+<section class="table-panel">{% include 'library/request_table.html' %}</section>
+{% include 'library/pagination.html' %}
+{% endblock %}

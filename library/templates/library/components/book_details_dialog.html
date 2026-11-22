@@ -1,0 +1,4 @@
+{% load i18n ui %}
+<dialog class="book-details-dialog" id="book-details-dialog" aria-labelledby="dialog-title"><div class="dialog-top"><h2 id="dialog-title">{% trans 'Подробнее о книге' %}</h2><button class="icon-button" type="button" data-dialog-close aria-label="{% trans 'Закрыть' %}">{% icon 'x' %}</button></div><div data-dialog-content></div></dialog>
+<template id="book-loading-template">{% include 'library/components/loading_skeleton.html' %}</template>
+<template id="book-error-template"><div class="dialog-error" role="alert">{% icon 'circle-alert' %}<h3>{% trans 'Не удалось загрузить книгу' %}</h3><p>{% trans 'Проверь подключение и попробуй ещё раз.' %}</p><button class="btn btn-primary" type="button" data-dialog-retry>{% trans 'Попробовать снова' %}</button><a class="text-link" data-dialog-fallback>{% trans 'Открыть страницу книги' %}</a></div></template>

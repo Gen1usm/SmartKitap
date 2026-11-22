@@ -1,0 +1,6 @@
+{% load i18n ui %}{% can_read book request.user as readable %}
+<details class="action-menu" data-popup><summary class="icon-button" aria-label="{% trans 'Действия' %}: {{ book.title }}" aria-expanded="false">{% icon 'ellipsis' %}</summary><div class="popup-panel action-options">
+    <a href="{% url 'library:book_details' book.pk %}" data-book-dialog>{% icon 'info' %}{% trans 'Подробнее о книге' %}</a>
+    {% if readable %}<a href="{% url 'library:book_read' book.pk %}">{% icon 'book-open' %}{% trans 'Читать' %}</a>{% endif %}
+    {% if request.user.is_staff or request.user.is_superuser %}<a href="{% url 'library:book_edit' book.pk %}">{% icon 'pencil' %}{% trans 'Редактировать' %}</a><a href="{% url 'library:book_file' book.pk %}">{% icon 'file-text' %}{% trans 'Загрузить файл книги' %}</a>{% endif %}
+</div></details>

@@ -1,0 +1,23 @@
+{% extends 'library/base.html' %}
+{% load i18n %}
+{% block title %}{% trans 'Ученики' %} - SmartKitap{% endblock %}
+{% block content %}
+<section class="page-heading"><div class="heading-row">
+    <div><p class="section-kicker">{% trans 'Учёт читателей' %}</p><h2>{% trans 'Ученики' %}</h2></div>
+    <a class="btn btn-primary" href="{% url 'library:student_add' %}">{% trans 'Добавить ученика' %}</a>
+</div></section>
+<section class="filter-panel"><form method="get" class="inline-form">
+    <label for="student-query">{% trans 'Поиск' %}</label>
+    <input id="student-query" class="form-control" type="search" name="q" value="{{ request.GET.q }}" placeholder="{% trans 'ФИО, класс или логин' %}">
+    <button class="btn btn-primary">{% trans 'Найти' %}</button>
+</form></section>
+<section class="table-panel"><div class="table-responsive"><table class="table align-middle">
+    <thead><tr><th>{% trans 'ФИО' %}</th><th>{% trans 'Класс' %}</th><th>{% trans 'Имя пользователя' %}</th><th>{% trans 'Контакт' %}</th><th>{% trans 'Статус' %}</th><th>{% trans 'Действия' %}</th></tr></thead>
+    <tbody>{% for student in students %}<tr>
+        <td>{{ student.reader.full_name }}</td><td>{{ student.reader.class_name }}</td><td>{{ student.user.username }}</td><td>{{ student.reader.contact|default:'—' }}</td>
+        <td>{% if student.user.is_active %}{% trans 'Активная' %}{% else %}{% trans 'Аккаунт отключён' %}{% endif %}</td>
+        <td><a class="btn btn-sm btn-outline-primary" href="{% url 'library:student_edit' student.pk %}">{% trans 'Редактировать' %}</a></td>
+    </tr>{% empty %}<tr><td colspan="6">{% trans 'Ученики не найдены' %}</td></tr>{% endfor %}</tbody>
+</table></div></section>
+{% include 'library/pagination.html' %}
+{% endblock %}
