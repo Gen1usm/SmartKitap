@@ -25,3 +25,9 @@ staticfiles/
 # Настройки редакторов
 .idea/
 .vscode/
+# Local data, backups and generated QA output
+backups/
+artifacts/
+private_media/
+runserver.pid
+runserver.port
