@@ -299,8 +299,9 @@ button.is-loading::after { content: ''; width: 12px; height: 12px; border: 2px s
 }
 @media(max-width:760px) {
  .app-shell { display: block; }
- .sidebar { position: fixed; inset: 0 auto 0 0; display: flex; width: 240px; height: 100dvh; padding-top: 25px; transform: translateX(-100%); visibility: hidden; transition: transform 200ms ease,visibility 200ms; z-index: 100; }
- .drawer-open .sidebar { transform: translateX(0); visibility: visible; }
+ /* Keep the closing slide, but make the drawer focusable immediately on opening. */
+ .sidebar { position: fixed; inset: 0 auto 0 0; display: flex; width: 240px; height: 100dvh; padding-top: 25px; transform: translateX(-100%); visibility: hidden; transition: transform 200ms ease, visibility 0s linear 200ms; z-index: 100; }
+ .drawer-open .sidebar { transform: translateX(0); visibility: visible; transition: transform 200ms ease, visibility 0s; }
  .drawer-open { overflow: hidden; }
  .drawer-backdrop { position: fixed; display: block; inset: 0; width: 100%; height: 100dvh; border: 0; background: #092F2266; z-index: 90; }
  .sidebar-close { display: flex; position: absolute; top: 8px; right: 8px; color: #DAE8D5; }
