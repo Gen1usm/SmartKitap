@@ -43,13 +43,18 @@ ALLOWED_HOSTS = env_list('ALLOWED_HOSTS', 'localhost,127.0.0.1,[::1]')
 CSRF_TRUSTED_ORIGINS = env_list('CSRF_TRUSTED_ORIGINS')
 
 # Enable only when HTTPS terminates correctly at the deployment boundary.
-if env_bool('HTTPS_ENABLED'):
-    SECURE_SSL_REDIRECT = True
-    SESSION_COOKIE_SECURE = True
-    CSRF_COOKIE_SECURE = True
-    SECURE_HSTS_SECONDS = 31536000
-    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
-    SECURE_HSTS_PRELOAD = True
+HTTPS_ENABLED = env_bool('HTTPS_ENABLED')
+SECURE_SSL_REDIRECT = HTTPS_ENABLED
+SESSION_COOKIE_SECURE = HTTPS_ENABLED
+CSRF_COOKIE_SECURE = HTTPS_ENABLED
+try:
+    SECURE_HSTS_SECONDS = int(os.environ.get('SECURE_HSTS_SECONDS', '0'))
+    if SECURE_HSTS_SECONDS < 0:
+        raise ValueError
+except ValueError:
+    raise ImproperlyConfigured('SECURE_HSTS_SECONDS must be a non-negative integer') from None
+SECURE_HSTS_INCLUDE_SUBDOMAINS = env_bool('SECURE_HSTS_INCLUDE_SUBDOMAINS')
+SECURE_HSTS_PRELOAD = env_bool('SECURE_HSTS_PRELOAD')
 # No proxy headers are trusted by default. Configure them only for a trusted proxy
 # that strips client-supplied forwarding headers and sets them itself.
 

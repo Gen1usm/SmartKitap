@@ -83,7 +83,7 @@ python manage.py createsuperuser
 python manage.py runserver
 ```
 
-Open http://127.0.0.1:8000/. Local HTTP requires `HTTPS_ENABLED=false` (default). For a future HTTPS deployment set `DEBUG=false`, `HTTPS_ENABLED=true`, `ALLOWED_HOSTS` and, if needed, `CSRF_TRUSTED_ORIGINS` as comma-separated values including origins' schemes. HTTPS must be configured before HSTS; enable it only when all covered subdomains support HTTPS. No forwarding headers are trusted by default. A reverse proxy may require additional configuration, only after it strips untrusted incoming headers and sets its own. `runserver` is not a production server.
+Open http://127.0.0.1:8000/. Local HTTP requires `HTTPS_ENABLED=false` (default). For a future HTTPS deployment set `DEBUG=false`, `HTTPS_ENABLED=true`, `ALLOWED_HOSTS` and, if needed, `CSRF_TRUSTED_ORIGINS` as comma-separated values including origins' schemes. `HTTPS_ENABLED` controls redirects and secure cookies; HSTS is independent and defaults to off (`SECURE_HSTS_SECONDS=0`, `SECURE_HSTS_INCLUDE_SUBDOMAINS=false`, `SECURE_HSTS_PRELOAD=false`). Enable HSTS separately only after verifying HTTPS; include subdomains or preload only after assessing their consequences and meeting browser requirements. With HTTPS enabled and HSTS disabled, `check --deploy` reports the expected `security.W004` warning. No forwarding headers are trusted by default. A reverse proxy may require additional configuration, only after it strips untrusted incoming headers and sets its own. `runserver` is not a production server.
 
 ```sh
 python manage.py check
