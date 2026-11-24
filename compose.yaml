@@ -2,7 +2,7 @@ services:
   web:
     build:
       context: .
-    image: smartkitap:1.0
+    image: ${SMARTKITAP_IMAGE:-smartkitap:1.0}
     container_name: smartkitap-web
     env_file:
       - .env

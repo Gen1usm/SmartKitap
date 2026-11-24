@@ -88,6 +88,27 @@ pipeline {
                 '''
             }
         }
+
+              stage('Deploy') {
+            steps {
+                withCredentials([
+                    sshUserPrivateKey(
+                        credentialsId: 'smartkitap-deploy-ssh',
+                        keyFileVariable: 'SSH_KEY',
+                        usernameVariable: 'SSH_USER'
+                    )
+                ]) {
+                    sh '''
+                        ssh -i "$SSH_KEY" \
+                          -o BatchMode=yes \
+                          -o IdentitiesOnly=yes \
+                          -o StrictHostKeyChecking=yes \
+                          "$SSH_USER@172.17.0.1" \
+                          "$IMAGE_NAME"
+                    '''
+                }
+            }
+        }
     }
 
     post {
