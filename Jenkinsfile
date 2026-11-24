@@ -13,6 +13,7 @@ pipeline {
     }
 
     stages {
+
         stage('Checkout') {
             steps {
                 checkout scm
@@ -21,7 +22,7 @@ pipeline {
 
         stage('Build') {
             steps {
-                sh 'docker build -t "$IMAGE_NAME" .'
+                sh 'docker build --pull -t "$IMAGE_NAME" .'
             }
         }
 
@@ -46,14 +47,63 @@ pipeline {
                 '''
             }
         }
+
+        stage('Trivy Security Scan') {
+            steps {
+                sh '''
+                    trivy image \
+                      --timeout 15m \
+                      --no-progress \
+                      --scanners vuln \
+                      --severity HIGH,CRITICAL \
+                      --exit-code 0 \
+                      --format table \
+                      --output trivy-report.txt \
+                      "$IMAGE_NAME"
+
+                    cat trivy-report.txt
+                '''
+            }
+        }
+
+        stage('Security Gate') {
+            steps {
+                sh '''
+                    trivy image \
+                      --timeout 15m \
+                      --no-progress \
+                      --scanners vuln \
+                      --severity CRITICAL \
+                      --exit-code 1 \
+                      "$IMAGE_NAME"
+
+                    trivy image \
+                      --timeout 15m \
+                      --no-progress \
+                      --scanners vuln \
+                      --severity HIGH \
+                      --ignore-unfixed \
+                      --exit-code 1 \
+                      "$IMAGE_NAME"
+                '''
+            }
+        }
     }
 
     post {
-        success {
-            echo 'SmartKitap CI: SUCCESS'
+        always {
+            archiveArtifacts(
+                artifacts: 'trivy-report.txt',
+                allowEmptyArchive: true
+            )
         }
+
+        success {
+            echo 'SmartKitap CI and Security Gate: SUCCESS'
+        }
+
         failure {
-            echo 'SmartKitap CI: FAILED'
+            echo 'SmartKitap Pipeline: FAILED'
         }
     }
 }
