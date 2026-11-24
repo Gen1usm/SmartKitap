@@ -4,7 +4,7 @@ No PDF fixtures are generated, copied, modified or removed by these tests.
 """
 from io import StringIO
 from pathlib import Path
-from unittest import skipUnless
+from tempfile import TemporaryDirectory
 from unittest.mock import patch
 
 from django.conf import settings
@@ -19,13 +19,25 @@ from .management.commands.link_book_pdfs import normalized_title
 from .models import Book, BookFile, Reader, StudentProfile
 from .storage import EXISTING_BOOK_PREFIX, PrivateBookStorage, existing_book_path
 
-PROJECT_MEDIA = Path(__file__).resolve().parents[1] / 'media'
-SOURCE = PROJECT_MEDIA / 'books' / 'abay_zholy.pdf'
-
-
-@skipUnless(SOURCE.is_file(), 'These tests require the existing media/books/abay_zholy.pdf.')
-@override_settings(MEDIA_ROOT=PROJECT_MEDIA, PASSWORD_HASHERS=['django.contrib.auth.hashers.MD5PasswordHasher'])
+@override_settings(PASSWORD_HASHERS=['django.contrib.auth.hashers.MD5PasswordHasher'])
 class ExistingPDFTests(TestCase):
+    @classmethod
+    def setUpClass(cls):
+        global SOURCE
+        temporary = TemporaryDirectory(prefix='smartkitap-pdf-')
+        cls.addClassCleanup(temporary.cleanup)
+        media = Path(temporary.name)
+        SOURCE = media / 'books' / 'abay_zholy.pdf'
+        SOURCE.parent.mkdir(parents=True)
+        from pypdf import PdfWriter
+        writer = PdfWriter()
+        writer.add_blank_page(width=72, height=72)
+        writer.write(str(SOURCE))
+        cls.settings_override = override_settings(MEDIA_ROOT=media)
+        cls.settings_override.enable()
+        cls.addClassCleanup(cls.settings_override.disable)
+        super().setUpClass()
+
     def setUp(self):
         user = get_user_model().objects.create_user('pdf-student', password='test-only')
         self.student = StudentProfile.objects.create(user=user,
@@ -110,6 +122,7 @@ class ExistingPDFTests(TestCase):
     def test_reader_contains_correct_book_author_and_back_link(self):
         self.link()
         response = self.client.get(reverse('library:book_read', args=[self.book.pk]))
+        self.addCleanup(response.close)
         self.assertContains(response, self.book.title)
         self.assertContains(response, self.book.author)
         self.assertContains(response, 'Каталогқа оралу')
@@ -119,6 +132,7 @@ class ExistingPDFTests(TestCase):
     def test_byte_range_returns_only_requested_bytes_inline(self):
         self.link()
         response = self.client.get(self.content_url(), HTTP_RANGE='bytes=0-4')
+        self.addCleanup(response.close)
         self.assertEqual(response.status_code, 206)
         self.assertEqual(b''.join(response.streaming_content), b'%PDF-')
         self.assertEqual(response['Content-Range'], f'bytes 0-4/{SOURCE.stat().st_size}')
@@ -134,18 +148,21 @@ class ExistingPDFTests(TestCase):
             file.seek(-16, 2)
             expected = file.read()
         response = self.client.get(self.content_url(), HTTP_RANGE='bytes=-16')
+        self.addCleanup(response.close)
         self.assertEqual(response.status_code, 206)
         self.assertEqual(b''.join(response.streaming_content), expected)
 
     def test_unsatisfiable_range_is_416(self):
         self.link()
         response = self.client.get(self.content_url(), HTTP_RANGE=f'bytes={SOURCE.stat().st_size}-')
+        self.addCleanup(response.close)
         self.assertEqual(response.status_code, 416)
         self.assertEqual(response['Content-Range'], f'bytes */{SOURCE.stat().st_size}')
 
     def test_direct_media_url_uses_same_authorization_and_correct_original(self):
         self.link()
         response = self.client.get('/media/books/abay_zholy.pdf', HTTP_RANGE='bytes=0-4')
+        self.addCleanup(response.close)
         self.assertEqual(response.status_code, 206)
         self.assertEqual(b''.join(response.streaming_content), b'%PDF-')
         self.client.logout()
@@ -169,6 +186,7 @@ class ExistingPDFTests(TestCase):
         self.link(filename='file-not-present.pdf')
         for mode in ['grid', 'table']:
             response = self.client.get(reverse('library:books'), {'view': mode})
+            self.addCleanup(response.close)
             self.assertContains(response, 'Онлайн нұсқасы жоқ')
             self.assertNotContains(response, reverse('library:book_read', args=[self.book.pk]))
         self.assertEqual(self.client.get(self.content_url()).status_code, 404)

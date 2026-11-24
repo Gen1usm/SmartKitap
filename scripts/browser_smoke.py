@@ -11,7 +11,8 @@ import tempfile
 import threading
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
-from wsgiref.simple_server import WSGIRequestHandler, make_server
+from socketserver import ThreadingMixIn
+from wsgiref.simple_server import WSGIRequestHandler, WSGIServer, make_server
 
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
@@ -47,6 +48,11 @@ class QuietHandler(WSGIRequestHandler):
         pass
 
 
+class ThreadedServer(ThreadingMixIn, WSGIServer):
+    # The embedded PDF viewer may keep a connection open while the page navigates.
+    daemon_threads = True
+
+
 def db_call(callback):
     # Playwright's synchronous API still runs an event loop on its own thread.
     def invoke():
@@ -70,7 +76,8 @@ def run():
     digital.save()
     output = ROOT / 'artifacts' / 'browser-qa'
     output.mkdir(parents=True, exist_ok=True)
-    server = make_server('127.0.0.1', 0, StaticFilesHandler(get_wsgi_application()), handler_class=QuietHandler)
+    server = make_server('127.0.0.1', 0, StaticFilesHandler(get_wsgi_application()),
+                         server_class=ThreadedServer, handler_class=QuietHandler)
     thread = threading.Thread(target=server.serve_forever, daemon=True)
     thread.start()
     base = f'http://127.0.0.1:{server.server_port}'

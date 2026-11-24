@@ -6,7 +6,7 @@
 ҚАЗ / РУС, адаптивная боковая панель, реальные данные кабинета, поиск и фильтры,
 окно книги, уведомления и доступные меню действий. Технологии проекта сохранены.
 Компоненты и источники графики описаны в [library/components.md](library/components.md).
-Снимки браузерной проверки: [artifacts/ui-qa](artifacts/ui-qa).
+Снимки браузерной проверки: `artifacts/ui-qa/` (local, ignored).
 
 ```powershell
 python manage.py test --noinput
@@ -52,90 +52,52 @@ SmartKitap — двуязычное веб-приложение школьной
 - Онлайн-чтение PDF и EPUB с сохранением прогресса.
 - Загрузка электронных книг и необязательный поиск метаданных в Open Library.
 
-## Запуск на Windows
+## Local setup: Windows and Linux
 
-1. Откройте папку проекта:
-
-```powershell
-cd "C:\Users\Zhumabaeva Gulnur\library1"
-```
-
-2. Создайте виртуальное окружение:
+Use Python 3.13. From the project directory:
 
 ```powershell
+# Windows PowerShell
 python -m venv .venv
-```
-
-3. Активируйте окружение:
-
-```powershell
 .\.venv\Scripts\Activate.ps1
+python -m pip install -r requirements-dev.txt
+$env:SECRET_KEY = python -c "from django.core.management.utils import get_random_secret_key; print(get_random_secret_key())"
+$env:DEBUG = 'true'
 ```
 
-Если PowerShell запрещает запуск скриптов, выполните:
-
-```powershell
-Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
-.\.venv\Scripts\Activate.ps1
+```sh
+# Linux
+python3.13 -m venv .venv
+. .venv/bin/activate
+python -m pip install -r requirements-dev.txt
+export SECRET_KEY="$(python -c 'from django.core.management.utils import get_random_secret_key; print(get_random_secret_key())')"
+export DEBUG=true
 ```
 
-4. Установите зависимости:
+Persist the generated key securely across restarts; changing it invalidates signed sessions. `.env.example` documents supported environment variables; it is not loaded automatically. Set variables in the process environment. Do not commit a real key. SQLite, public media and private media default to `db.sqlite3`, `media/`, and `private_media/`; set `SQLITE_PATH`, `MEDIA_ROOT`, and `PRIVATE_MEDIA_ROOT` to relocate them.
 
-```powershell
-python -m pip install --upgrade pip
-pip install -r requirements.txt
-```
-
-5. Примените миграции:
-
-```powershell
+```sh
 python manage.py migrate
 python manage.py compile_locales
-```
-
-6. Создайте администратора или библиотекаря:
-
-```powershell
 python manage.py createsuperuser
-```
-
-7. При необходимости загрузите демонстрационные книги:
-
-```powershell
-python manage.py load_demo_books
-```
-
-8. Запустите сервер:
-
-```powershell
 python manage.py runserver
 ```
 
-9. Откройте приложение:
+Open http://127.0.0.1:8000/. Local HTTP requires `HTTPS_ENABLED=false` (default). For a future HTTPS deployment set `DEBUG=false`, `HTTPS_ENABLED=true`, `ALLOWED_HOSTS` and, if needed, `CSRF_TRUSTED_ORIGINS` as comma-separated values including origins' schemes. `HTTPS_ENABLED` controls redirects and secure cookies; HSTS is independent and defaults to off (`SECURE_HSTS_SECONDS=0`, `SECURE_HSTS_INCLUDE_SUBDOMAINS=false`, `SECURE_HSTS_PRELOAD=false`). Enable HSTS separately only after verifying HTTPS; include subdomains or preload only after assessing their consequences and meeting browser requirements. With HTTPS enabled and HSTS disabled, `check --deploy` reports the expected `security.W004` warning. No forwarding headers are trusted by default. A reverse proxy may require additional configuration, only after it strips untrusted incoming headers and sets its own. `runserver` is not a production server.
 
-```text
-http://127.0.0.1:8000/
+```sh
+python manage.py check
+python manage.py makemigrations --check --dry-run
+python manage.py test --noinput
+python manage.py collectstatic --noinput
+python -m playwright install chromium
+python scripts/browser_smoke.py
+python scripts/ui_smoke.py
 ```
 
-10. Войдите в кабинет библиотекаря:
+Browser checks use temporary databases and media; screenshots and results go into ignored `artifacts/`. `collectstatic` writes to ignored `staticfiles/`. Run `python manage.py check --deploy` with the intended production settings. A clean check alone does not certify deployment security. Serve static files with the future web server. Never publicly serve `private_media/` or `media/books/`: existing PDFs use an authenticated Django view, and private books use `PrivateBookStorage`.
 
-```text
-http://127.0.0.1:8000/login/
-```
-
-11. Проверьте основные разделы:
-
-- каталог: `/books/`
-- читатели: `/readers/`
-- выдача и возврат: `/loans/`
-- отчёты: `/reports/`
-- админ-панель Django: `/admin/`
-- регистрация ученика: `/register/`
-- личный кабинет: `/account/`
-- запросы ученика: `/my-requests/`
-- управление учениками: `/students/`
-- запросы для библиотекаря: `/requests/`
-- электронный каталог: `/online/`
+CSV exports use UTF-8 BOM and CSV quoting. Text containing control characters, or starting (after whitespace) with `=`, `+`, `-`, `@`, is prefixed with an apostrophe for spreadsheet import. Import fields as text; spreadsheet behavior varies, and later saves or conversions may remove this protection. The source database is unchanged.
 
 ## Как работает выдача и возврат
 
@@ -209,7 +171,6 @@ python manage.py test library.tests library.test_existing_pdfs --noinput
 
 Изменены: `library/storage.py`, `library/models.py` (проверка наличия, без изменения полей), `library/validators.py`, `library/views.py`, `smartkitap/urls.py`, `library/templates/library/book_actions.html`, `library/templates/library/book_read.html`, `library/static/library/css/styles.css`, `scripts/browser_smoke.py`, каталоги переводов `locale/kk/LC_MESSAGES/django.*`, `locale/ru/LC_MESSAGES/django.*` и этот README. Добавлены `library/media.py`, `library/pdf_responses.py`, `library/data/pdf_book_mapping.json`, `library/management/commands/link_book_pdfs.py`, `library/static/library/js/pdf_reader.js`, `library/test_existing_pdfs.py`, `scripts/verify_existing_pdfs.py`.
 
-Проверены 50 прежних и 18 новых тестов, все шесть реальных PDF в Chromium, перелистывание, масштаб, полноэкранный режим, мобильная вёрстка и русский/казахский интерфейс. Исходные PDF сохранили размер, время изменения и SHA-256. Отчёты и снимки находятся в `artifacts/pdf-linking/`. Крупные PDF около 445 и 187 МБ в этой проверке полностью открывались примерно за 22 и 10 секунд; скорость зависит от компьютера и соединения.
 
 При установленном Playwright проверку реального сайта можно повторить командой ниже; пароль вводится в запросе терминала и в отчёты не сохраняется:
 
@@ -217,53 +178,9 @@ python manage.py test library.tests library.test_existing_pdfs --noinput
 python scripts/verify_existing_pdfs.py --username abai.korkem
 ```
 
-## Поиск данных из интернета
+## Backups
 
-В форме книги блок Open Library ищет название, автора, год, жанр и обложку. Кнопка «Использовать данные» заполняет поля и отдельно запрашивает описание. Проверьте сведения перед сохранением; обложку можно импортировать или загрузить вручную. Поиск метаданных и загрузка PDF/EPUB — отдельные операции.
-
-Используются официальные [Search API](https://openlibrary.org/dev/docs/api/search), JSON-записи произведений и сервер обложек Open Library. Запросы имеют ограничение времени и размера; результаты кешируются. Ошибка API показывает сообщение, а ручное добавление, каталог, запросы и выдача продолжают работать. API-ключ не требуется.
-
-## Проверка обновления
-
-```powershell
-python manage.py check
-python manage.py makemigrations --check --dry-run
-python manage.py test --noinput
-```
-
-Добавлен 41 тест на регистрацию, приватность, роли, CSRF, пять статусов, резервы, обычную выдачу, возврат, загрузку/доступ к PDF и EPUB, прогресс, неправильные файлы, импорт обложек, ошибки API, Django admin и оба языка. Сохранены прежние 50 тестов.
-
-Проверены 91 автоматический тест и 9 сценариев браузерной проверки. Реальный поиск Open Library и получение описания прошли. Во время проверки сервер обложек вернул сетевой timeout; успешный импорт проверен на тестовом JPEG, обработка timeout и ручное сохранение также проверены.
-
-Дополнительная проверка в Chromium использует отдельную временную SQLite-базу, не изменяет школьные данные и сохраняет снимки в `artifacts/browser-qa/`:
-
-```powershell
-python -m pip install playwright
-python -m playwright install chromium
-python scripts/browser_smoke.py
-```
-
-Скрипт проверяет реальные формы с CSRF, регистрацию, запрос/выдачу/возврат, PDF, главы EPUB, прогресс, мобильную навигацию, языки и одновременное принятие двух запросов на последнюю копию.
-
-## Резервное копирование
-
-Перед обновлением проекта сохраните:
-
-```text
-db.sqlite3
-media/book_covers/
-private_media/books/
-```
-
-Простой вариант:
-
-```powershell
-Copy-Item db.sqlite3 db.backup.sqlite3
-Copy-Item media\book_covers media\book_covers_backup -Recurse
-Copy-Item private_media private_media_backup -Recurse
-```
-
-Не удаляйте `db.sqlite3`, если нужно сохранить книги, читателей, выдачи и историю операций.
+Keep the SQLite database, `media/book_covers/`, `media/books/`, and the whole `private_media/` directory together in a protected location outside Git. To get a mutually consistent snapshot, stop application writes (including file uploads) before copying the database and directories. Do not treat a normal copy of an actively written SQLite database as a guaranteed consistent backup. SQLite's backup API can snapshot a live database, but file uploads must still be coordinated for consistency with the database. Test restoration into an isolated environment. The ignored `backups/` and `artifacts/` directories are local data and are not distributed with a clone.
 
 ## Локальная демонстрация и развёртывание
 

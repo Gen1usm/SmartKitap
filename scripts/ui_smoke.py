@@ -21,6 +21,7 @@ from django.conf import settings
 temporary = tempfile.TemporaryDirectory(prefix='smartkitap-ui-')
 settings.DATABASES['default']['NAME'] = Path(temporary.name) / 'ui.sqlite3'
 settings.PRIVATE_MEDIA_ROOT = Path(temporary.name) / 'private'
+settings.MEDIA_ROOT = Path(temporary.name) / 'public'
 settings.ALLOWED_HOSTS = ['127.0.0.1']
 settings.PASSWORD_HASHERS = ['django.contrib.auth.hashers.MD5PasswordHasher']
 
@@ -66,6 +67,12 @@ def run():
         ('Ай мен Айша', 'Шерхан Мұртаза', 'Роман', 'ai_men_aisha.png'),
         ('Мұқабасыз кітап', 'Жаңа автор', 'Әңгіме', ''),
     ]
+    from PIL import Image
+    covers = settings.MEDIA_ROOT / 'book_covers'
+    covers.mkdir(parents=True, exist_ok=True)
+    for _, _, _, cover in data:
+        if cover:
+            Image.new('RGB', (160, 240), (65, 100, 125)).save(covers / cover)
     books = []
     for title, author, genre, cover in data:
         book = Book.objects.create(title=title, author=author, genre=genre, publication_year=2026,
@@ -198,14 +205,35 @@ def run():
             expect(page.locator('[data-drawer-open]')).to_be_visible()
             page.locator('[data-drawer-open]').click()
             expect(page.locator('#app-sidebar')).to_have_attribute('aria-modal', 'true')
+            first = page.locator('#app-sidebar [data-drawer-close]')
+            last = page.locator('#app-sidebar .sidebar-nav a').last
+            expect(first).to_be_focused()
             page.keyboard.press('Shift+Tab')
             assert page.evaluate("document.activeElement.closest('#app-sidebar') !== null")
+            expect(last).to_be_focused()
+            page.keyboard.press('Tab')
+            expect(first).to_be_focused()
+            page.keyboard.press('Tab')
+            expect(page.locator('#app-sidebar .smartkitap-logo')).to_be_focused()
+            page.keyboard.press('Shift+Tab')
+            expect(first).to_be_focused()
             page.screenshot(path=str(output / 'drawer-mobile.png'))
             page.keyboard.press('Escape')
             expect(page.locator('[data-drawer-open]')).to_be_focused()
             page.locator('[data-drawer-open]').click()
             page.locator('.drawer-backdrop').click(position={'x': 320, 'y': 400})
             expect(page.locator('body')).not_to_have_class('drawer-open')
+            expect(page.locator('[data-drawer-open]')).to_be_focused()
+            page.emulate_media(reduced_motion='no-preference')
+            page.locator('[data-drawer-open]').click()
+            expect(first).to_be_focused()
+            page.keyboard.press('Shift+Tab')
+            expect(last).to_be_focused()
+            page.keyboard.press('Tab')
+            expect(first).to_be_focused()
+            page.keyboard.press('Escape')
+            expect(page.locator('[data-drawer-open]')).to_be_focused()
+            page.emulate_media(reduced_motion='reduce')
             assert page.evaluate('document.documentElement.scrollWidth <= innerWidth')
             page.screenshot(path=str(output / 'dashboard-mobile.png'), full_page=True)
             checks.append('390 px drawer, focus trap, Escape, backdrop, focus restoration and no page overflow')
