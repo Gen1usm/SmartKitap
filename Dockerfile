@@ -31,6 +31,10 @@ RUN python -m pip uninstall -y pip
 # Stage 2: Runtime
 FROM python:3.13-slim AS runtime
 
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends --only-upgrade libzstd1 \
+    && rm -rf /var/lib/apt/lists/*
+
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
     PATH="/opt/venv/bin:$PATH"
