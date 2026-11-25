@@ -146,8 +146,15 @@ a {
     text-decoration: none;
 }
 
-.logout-button {
+.login-link.logout-button {
     cursor: pointer;
+    background: #e53935;
+    color: #ffffff;
+}
+
+.login-link.logout-button:hover {
+    background: #b71c1c;
+    color: #ffffff;
 }
 
 .login-link:hover {
